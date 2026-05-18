@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.0.2] - 2026-05-18
+
 ### Added
 - Initial repository layout mirroring `pydantic-ai`: top-level package
   directory, `toolkits/` subpackage (analogous to

@@ -10,6 +10,8 @@ extra only raises when the corresponding toolkit is actually accessed.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 __all__ = [
     "FilesystemToolkit",
     "SQLToolkit",
@@ -19,6 +21,13 @@ __all__ = [
     "Document",
     "Embedder",
 ]
+
+if TYPE_CHECKING:
+    from .filesystem import FilesystemToolkit
+    from .memory import MemoryToolkit
+    from .pandas import PandasToolkit
+    from .rag import Document, Embedder, RAGToolkit
+    from .sql import SQLToolkit
 
 
 def __getattr__(name: str):

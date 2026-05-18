@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import Any, TypeVar, overload
 
 from pydantic_ai.toolsets import FunctionToolset
 
@@ -20,6 +20,15 @@ TOOL_DESC_ATTR = "__toolkit_tool_description__"
 TOOL_TAKES_CTX_ATTR = "__toolkit_tool_takes_ctx__"
 
 
+@overload
+def tool(fn: F) -> F: ...
+@overload
+def tool(
+    *,
+    name: str | None = ...,
+    description: str | None = ...,
+    takes_ctx: bool = ...,
+) -> Callable[[F], F]: ...
 def tool(
     fn: F | None = None,
     *,

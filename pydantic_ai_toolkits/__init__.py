@@ -14,9 +14,11 @@ another.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from .base import BaseToolkit, tool
 
-__version__ = "0.1.0"
+__version__ = "0.0.2"
 
 __all__ = [
     "BaseToolkit",
@@ -29,6 +31,16 @@ __all__ = [
     "Document",
     "Embedder",
 ]
+
+if TYPE_CHECKING:
+    # Eager imports for type checkers (PyCharm, pyright, mypy). At runtime
+    # the lazy `__getattr__` below still controls when each toolkit module
+    # is actually imported, so missing extras only fail on first use.
+    from .toolkits.filesystem import FilesystemToolkit
+    from .toolkits.memory import MemoryToolkit
+    from .toolkits.pandas import PandasToolkit
+    from .toolkits.rag import Document, Embedder, RAGToolkit
+    from .toolkits.sql import SQLToolkit
 
 
 def __getattr__(name: str):

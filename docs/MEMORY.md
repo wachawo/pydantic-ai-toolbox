@@ -87,3 +87,51 @@ assert [m.role for m in mem.messages] == ["user"]
 assert mem.facts["favourite_color"].value == "blue"
 print(mem.summary())
 ```
+
+## Working example
+
+Three-turn flow: agent learns a name in turn 1, does unrelated work in
+turn 2, recalls in turn 3 — even though no message history is carried
+across runs. Full script:
+`examples/memory_example.py`.
+
+```python
+from pydantic_ai import Agent
+from pydantic_ai.models.openai import OpenAIChatModel
+from pydantic_ai.providers.openai import OpenAIProvider
+from pydantic_ai_toolkits import MemoryToolkit
+
+mem = MemoryToolkit()
+agent = Agent(
+    model=OpenAIChatModel(
+        "qwen3:8b",
+        provider=OpenAIProvider(base_url="http://localhost:11434/v1", api_key="ollama"),
+    ),
+    toolsets=[mem],
+    system_prompt=(
+        "/no_think\n"
+        "You are a helpful assistant with a persistent memory tool. "
+        "When the user shares personal details, store them via `set_fact` "
+        "using a clear key like `user_name`. When the user asks about "
+        "something they told you earlier, look it up with `get_fact` or "
+        "`list_facts` BEFORE answering. Do not invent facts."
+    ),
+)
+
+agent.run_sync("Hi! My name is Alex.")              # → set_fact("user_name", "Alex")
+agent.run_sync("What is 2 + 2 * 2?")                # → "6", no memory touched
+agent.run_sync("Can you remind me what my name is?") # → get_fact, returns "Alex"
+print(mem.list_facts())  # {'user_name': 'Alex'}
+```
+
+## Direct (no-agent) flow
+
+The same flow without an LLM
+(`tests/test_example_flows.py::TestMemoryFlow`):
+
+```python
+mem = MemoryToolkit()
+mem.set_fact("user_name", "Alex")
+assert mem.get_fact("user_name") == "Alex"
+assert mem.list_facts() == {"user_name": "Alex"}
+```

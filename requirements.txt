@@ -4,6 +4,7 @@
 # environments that pin from a flat requirements list.
 
 pydantic-ai-slim>=0.0.40
+pydantic-ai>=0.0.40
 
 # extra: sql
 sqlalchemy>=2.0

@@ -4,6 +4,9 @@
 #
 # Runtime deps live in requirements.txt and are installed separately
 # (or via `pip install -e ".[all]"`).
+-r requirements.txt
+
+python-dotenv>=1.2.2
 
 # Test runner + coverage
 pytest>=8.0

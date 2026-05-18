@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import logging
 import os
+from typing import Any
 
 from pydantic_ai import Agent
 
@@ -16,7 +17,7 @@ from pydantic_ai_toolkits import (
     SQLToolkit,
 )
 
-LOGGING = {
+LOGGING: dict[str, Any] = {
     "format": "%(asctime)s.%(msecs)03d [%(levelname)s]: (%(name)s) %(message)s",
     "level": logging.INFO,
     "datefmt": "%Y-%m-%d %H:%M:%S",

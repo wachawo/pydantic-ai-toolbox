@@ -154,3 +154,50 @@ hits = rag.search("happy felines", k=3, filter={"topic": "cats"})
 for h in hits:
     print(h["id"], round(h["score"], 3), h["text"])
 ```
+
+## Working example: priors vs. knowledge base
+
+A common sanity check for any RAG setup: index a fact that contradicts
+the model's prior, then verify the agent answers from the index instead
+of its own knowledge. Full script:
+`examples/rag_example.py`.
+
+```python
+from pydantic_ai import Agent
+from pydantic_ai.models.openai import OpenAIChatModel
+from pydantic_ai.providers.openai import OpenAIProvider
+from pydantic_ai_toolkits import RAGToolkit
+
+rag = RAGToolkit(embedder=stub_embedder, chunk_size=200, chunk_overlap=20)
+rag.add_text("The sky is green.", doc_id="d-sky")
+
+agent = Agent(
+    model=OpenAIChatModel(
+        "qwen3:8b",
+        provider=OpenAIProvider(base_url="http://localhost:11434/v1", api_key="ollama"),
+    ),
+    toolsets=[rag],
+    system_prompt=(
+        "/no_think\n"
+        "You answer questions strictly from the knowledge base, not from "
+        "your prior knowledge. ALWAYS call the `search` tool first to find "
+        "relevant passages, and base your answer on those passages even if "
+        "they contradict common sense."
+    ),
+)
+
+reply = agent.run_sync("What color is the sky?")
+# → "The sky is green, according to the information in the knowledge base."
+```
+
+## Direct (no-agent) flow
+
+The same setup without an LLM
+(`tests/test_example_flows.py::TestRAGFlow`):
+
+```python
+rag = RAGToolkit(embedder=stub_embedder, chunk_size=200, chunk_overlap=20)
+rag.add_text("The sky is green.", doc_id="d-sky")
+hits = rag.search("What color is the sky?", k=1)
+assert "green" in hits[0]["text"].lower()
+```
