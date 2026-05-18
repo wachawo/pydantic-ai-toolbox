@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/LICENSE)
 [![Python](https://img.shields.io/pypi/pyversions/pydantic-ai-toolkits.svg)](https://pypi.org/project/pydantic-ai-toolkits/)
 
-If you've used [pydantic-ai](https://ai.pydantic.dev/), you already know
+If you've used [pydantic-ai](https://github.com/pydantic/pydantic-ai), you already know
 the feeling: it's the first agent framework that feels like a regular
 Python library. Typed `RunContext`, a clean `FunctionToolset` protocol,
 model providers swapped behind one string. After a decade of frameworks
