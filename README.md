@@ -1,59 +1,30 @@
 # pydantic-ai-toolkits
 
-Modular, **independent** tool kits for [pydantic-ai](https://ai.pydantic.dev/)
-agents. Each toolkit is a thin subclass of
-`pydantic_ai.toolsets.FunctionToolset`. You configure one once (sandbox root,
-DSN, vector store, ...) and pass it to one or more agents through the
-standard `toolsets=` argument.
+[![CI](https://github.com/wachawo/pydantic-ai-toolkits/actions/workflows/ci.yml/badge.svg)](https://github.com/wachawo/pydantic-ai-toolkits/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/pydantic-ai-toolkits.svg)](https://pypi.org/project/pydantic-ai-toolkits/)
+[![Downloads](https://img.shields.io/pypi/dm/pydantic-ai-toolkits.svg)](https://pypi.org/project/pydantic-ai-toolkits/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/LICENSE)
+[![Python](https://img.shields.io/pypi/pyversions/pydantic-ai-toolkits.svg)](https://pypi.org/project/pydantic-ai-toolkits/)
 
-## Why "independent"
+If you've used [pydantic-ai](https://ai.pydantic.dev/), you already know
+the feeling: it's the first agent framework that feels like a regular
+Python library. Typed `RunContext`, a clean `FunctionToolset` protocol,
+model providers swapped behind one string. After a decade of frameworks
+that pretended to be Pythonic, this one actually is.
 
-- The base package ships with no heavy dependencies; SQLAlchemy, pandas,
-  and numpy are opt-in via extras.
-- Toolkit modules **do not import each other**. Picking up
-  `FilesystemToolkit` does not import `sqlalchemy`, `pandas`, or `numpy`.
-- A missing extra only fails when the corresponding toolkit is actually
-  instantiated — `import pydantic_ai_toolkits` always works.
+And then you sit down to wire up your agent, and realize: pydantic-ai
+will happily call any tool you give it — but the tools themselves are
+still on you. Want the agent to read a file? You write the sandbox.
+Run a SQL query? You write the read-only guard and the schema
+introspection. Search local documents? Text splitter, vector index,
+cosine math, persistence — all you.
 
-## Relationship to pydantic-ai built-ins
-
-Before reaching for a toolkit here, check whether pydantic-ai already
-ships the capability you need:
-
-| Need                                                | Use this                                                                     |
-|-----------------------------------------------------|------------------------------------------------------------------------------|
-| Web search                                          | `pydantic_ai.common_tools.{duckduckgo, exa, tavily}` or `native_tools.WebSearchTool` |
-| Fetch a page and convert it to Markdown             | `pydantic_ai.common_tools.web_fetch.web_fetch_tool`                          |
-| Provider-side code execution / image gen            | `pydantic_ai.native_tools.{CodeExecutionTool, ImageGenerationTool, FileSearchTool}` |
-| Provider-managed long-term memory                   | `pydantic_ai.native_tools.MemoryTool`                                        |
-| Bridge an external tool framework                   | `pydantic_ai.ext.*`                                                          |
-| Plug in a third-party MCP server (fs, postgres, …)  | `pydantic_ai.mcp.MCPServerStdio` / `MCPServerHTTP`                           |
-
-This library covers gaps the framework does not fill itself:
-
-- **`FilesystemToolkit`** — local sandboxed filesystem (path-escape
-  rejection, optional read-only). `native_tools.FileSearchTool` is
-  OpenAI-side search over uploaded files, not local FS access.
-- **`SQLToolkit`** — SQLAlchemy connection with a read-only guard.
-- **`PandasToolkit`** — in-memory dataframe registry with common
-  analysis ops.
-- **`MemoryToolkit`** — local, agent-owned conversation/scratchpad
-  memory (chat history, summary, buffer-window) — works without a
-  provider memory feature and stores data on your side.
-- **`RAGToolkit`** — local retrieval-augmented generation: text
-  splitter, in-memory vector store, similarity search.
-
-## Install
+After the third project where you wrote those by hand, the shape stops
+being interesting. This is them, written once:
 
 ```bash
-pip install pydantic-ai-toolkits                   # base only
-pip install "pydantic-ai-toolkits[sql]"            # + SQLAlchemy
-pip install "pydantic-ai-toolkits[pandas]"         # + pandas
-pip install "pydantic-ai-toolkits[rag]"            # + numpy (for vector math)
-pip install "pydantic-ai-toolkits[all]"            # everything
+pip install pydantic-ai-toolkits
 ```
-
-## Quickstart
 
 ```python
 from pydantic_ai import Agent
@@ -67,7 +38,7 @@ agent = Agent(
         FilesystemToolkit(root="./workspace", read_only=False),
         SQLToolkit(dsn="postgresql://user:pwd@localhost/app"),
         PandasToolkit(),
-        MemoryToolkit(),
+        MemoryToolkit(storage_path="./memory.json"),
         RAGToolkit(embedder=my_embedder),
     ],
     system_prompt="You are a data assistant.",
@@ -76,94 +47,153 @@ agent = Agent(
 print(agent.run_sync("Read README.md from the workspace and summarise it.").output)
 ```
 
-## Repository layout
+That's the whole story. Five toolkits, one `toolsets=[...]`, no new
+framework on top of pydantic-ai — each toolkit is a thin
+`FunctionToolset` subclass, exactly what pydantic-ai expects.
 
-```
-pydantic-ai-toolkits/
-├── pydantic_ai_toolkits/
-│   ├── __init__.py          # public re-exports (lazy)
-│   ├── base.py              # BaseToolkit + @tool decorator
-│   ├── py.typed
-│   └── toolkits/
-│       ├── __init__.py
-│       ├── filesystem.py    # no third-party deps
-│       ├── sql.py           # extra: [sql]
-│       ├── pandas.py        # extra: [pandas]
-│       ├── memory.py        # extra: [memory] (stdlib only)
-│       └── rag.py           # extra: [rag] (numpy)
-├── tests/
-├── examples/
-├── docs/                    # mkdocs site
-├── mkdocs.yml
-├── pyproject.toml
-├── requirements.txt
-├── Makefile
-├── .pre-commit-config.yaml
-├── AGENTS.md
-├── CHANGELOG.md
-├── LICENSE
-└── README.md
+---
+
+## Install
+
+```bash
+pip install pydantic-ai-toolkits
 ```
 
-The shape mirrors `pydantic-ai`'s own repo (package directory at top level,
-`toolkits/` subpackage analogous to `pydantic_ai/toolsets/` and
-`pydantic_ai/common_tools/`, `tests/` flat at the top, `examples/` next to
-it, mkdocs site under `docs/`).
+The base install gives you `FilesystemToolkit` and `MemoryToolkit`
+(stdlib only). The rest are opt-in so you only pull in what you use:
+
+```bash
+pip install "pydantic-ai-toolkits[sql]"      # + SQLAlchemy
+pip install "pydantic-ai-toolkits[pandas]"   # + pandas + pyarrow
+pip install "pydantic-ai-toolkits[rag]"      # + numpy
+pip install "pydantic-ai-toolkits[all]"      # everything
+```
+
+Extras are independent — picking up one doesn't pull in the others.
+Details: [docs/INSTALL.md](docs/INSTALL.md).
+
+---
 
 ## Toolkits
 
-See [docs/](docs/) for the rendered reference. Short list:
+| Toolkit                | What an agent can do with it                                   | Docs                                |
+|------------------------|----------------------------------------------------------------|-------------------------------------|
+| `FilesystemToolkit`    | List, read, write, append, delete, mkdir, stat, glob — under one sandbox root, with path-escape rejection and an optional read-only mode. | [docs/FILESYSTEM.md](docs/FILESYSTEM.md) |
+| `SQLToolkit`           | List tables/views, describe schemas, run parameterised reads, optional `execute` for writes. Single-statement read-only by default. | [docs/SQL.md](docs/SQL.md)               |
+| `PandasToolkit`        | Manage a named dataframe registry; load CSV/Parquet; head / describe / schema / query / aggregate / value_counts. | [docs/PANDAS.md](docs/PANDAS.md)         |
+| `MemoryToolkit`        | Append/read/search messages; key-value scratchpad facts; optional atomic JSON persistence and per-namespace isolation. | [docs/MEMORY.md](docs/MEMORY.md)         |
+| `RAGToolkit`           | Recursive character text splitter + in-memory numpy vector index with cosine search and per-document delete. | [docs/RAG.md](docs/RAG.md)               |
 
-- `FilesystemToolkit` — list / read / write / append / delete / mkdir /
-  stat / glob, rooted at one directory.
-- `SQLToolkit` — list_tables / list_views / describe_table / query /
-  execute, with a read-only guard.
-- `PandasToolkit` — list_dataframes / load_csv / load_parquet / head /
-  describe / schema / query / aggregate / value_counts.
-- `MemoryToolkit` — see [docs/MEMORY.md](docs/MEMORY.md).
-- `RAGToolkit` — see [docs/RAG.md](docs/RAG.md).
+Tiny snippets to taste each one:
 
-## Writing your own toolkit
+```python
+# Filesystem — sandbox a workspace, then let the agent edit files
+FilesystemToolkit(root="./workspace", read_only=False)
+
+# SQL — read-only Postgres
+SQLToolkit(dsn="postgresql://user:pwd@localhost/app")
+
+# Pandas — start with an empty registry, agent loads CSVs as needed
+PandasToolkit()
+
+# Memory — persisted scratchpad, 200-message cap
+MemoryToolkit(storage_path="./memory.json", max_messages=200)
+
+# RAG — bring your own embedder
+RAGToolkit(embedder=lambda texts: [embed(t) for t in texts])
+```
+
+Runnable end-to-end scripts live in [examples/](examples/) (see
+[docs/EXAMPLES.md](docs/EXAMPLES.md)).
+
+---
+
+## What's not in here (and where to find it)
+
+Before reaching for a toolkit here, check whether `pydantic-ai` already
+ships the capability you need — most of the time it does:
+
+| Need                                          | Use this                                                 |
+|-----------------------------------------------|----------------------------------------------------------|
+| Web search                                    | `pydantic_ai.common_tools.{duckduckgo, exa, tavily}` or `native_tools.WebSearchTool` |
+| Fetch a page and convert to Markdown          | `pydantic_ai.common_tools.web_fetch.web_fetch_tool`      |
+| Provider-side code execution / image gen      | `pydantic_ai.native_tools.{CodeExecutionTool, ImageGenerationTool, FileSearchTool}` |
+| Provider-managed long-term memory             | `pydantic_ai.native_tools.MemoryTool`                    |
+| Third-party MCP server (fs, postgres, …)      | `pydantic_ai.mcp.MCPServerStdio` / `MCPServerHTTP`       |
+
+This package fills the gaps that aren't on that list — local sandboxed
+filesystem access, generic SQL via SQLAlchemy, in-memory dataframe ops,
+self-hosted conversation memory, and local RAG without an external
+vector DB.
+
+---
+
+## Write your own toolkit
+
+A toolkit is a `BaseToolkit` subclass whose public methods carry `@tool`:
 
 ```python
 from pydantic_ai_toolkits import BaseToolkit, tool
 
 
 class WeatherToolkit(BaseToolkit):
-    def __init__(self, api_key: str) -> None:
+    """Look up current weather for a configurable provider."""
+
+    def __init__(self, api_key: str, units: str = "metric") -> None:
         self.api_key = api_key
-        super().__init__()           # MUST be last — it scans @tool methods
+        self.units = units
+        super().__init__()          # MUST be last — scans @tool methods
 
     @tool
     def current_temperature(self, city: str) -> float:
-        """Return the current temperature in Celsius for the given city."""
+        """Return the current temperature for `city` in the configured units."""
         ...
 ```
 
-Rules:
+Full rules, schema-mapping table, and the contribution checklist:
+[docs/WRITING.md](docs/WRITING.md), [AGENTS.md](AGENTS.md).
 
-1. Subclass `BaseToolkit`.
-2. Configure `self.*` in `__init__`, then call `super().__init__()` as the
-   last line.
-3. Decorate every public method with `@tool`. Method name becomes the tool
-   name; docstring becomes the description.
-4. Use plain type hints — pydantic-ai builds the JSON schema from the
-   signature.
-5. Use `@tool(takes_ctx=True)` if the first method argument (after `self`)
-   is a `RunContext[Deps]`.
-6. Do not import another toolkit module from yours. Lazy-import any
-   third-party library inside `__init__`.
+---
 
-See [AGENTS.md](AGENTS.md) for the full contribution guide and
-[docs/](docs/) for the rendered site.
+## Install from git (latest unreleased)
 
-## Safety defaults
+```bash
+pip install git+https://github.com/wachawo/pydantic-ai-toolkits.git
+```
 
-- `FilesystemToolkit` defaults to `read_only=True` and rejects path escapes.
-- `SQLToolkit` defaults to `read_only=True` and refuses multi-statement input.
-- `PandasToolkit` caps every row-returning tool at `max_query_rows`.
-- `MemoryToolkit` caps message count and (optionally) total characters; persists atomically.
-- `RAGToolkit` caps per-query result count and rejects oversized files in `add_file`.
+## Install from source (local development)
+
+```bash
+git clone git@github.com:wachawo/pydantic-ai-toolkits.git
+cd pydantic-ai-toolkits
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[all]"
+pip install -r requirements-dev.txt
+pytest --cov          # 80% coverage gate
+```
+
+---
+
+## Documentation
+
+Rendered with MkDocs at [docs/](docs/):
+
+- [Overview](docs/index.md)
+- [Install](docs/INSTALL.md)
+- Toolkits: [Filesystem](docs/FILESYSTEM.md), [SQL](docs/SQL.md), [Pandas](docs/PANDAS.md), [Memory](docs/MEMORY.md), [RAG](docs/RAG.md)
+- [Write your own](docs/WRITING.md)
+- [Examples](docs/EXAMPLES.md)
+- [Building the docs site](docs/MKDOCS.md)
+- [Changelog](CHANGELOG.md)
+
+If something's off — a missing convenience method, an awkward
+signature, a default that doesn't match your use case — the API is
+intentionally small. Open an issue on
+[GitHub](https://github.com/wachawo/pydantic-ai-toolkits/issues) and
+say what you'd want instead.
+
+---
 
 ## License
 
