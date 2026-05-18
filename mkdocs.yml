@@ -1,0 +1,43 @@
+site_name: pydantic-ai-toolkits
+site_description: Modular, independent tool kits for pydantic-ai agents.
+site_url: https://wachawo.github.io/pydantic-ai-toolkits/
+repo_url: https://github.com/wachawo/pydantic-ai-toolkits
+repo_name: wachawo/pydantic-ai-toolkits
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - content.code.copy
+    - content.code.annotate
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+
+nav:
+  - Overview: index.md
+  - Install: INSTALL.md
+  - Toolkits:
+      - Filesystem: FILESYSTEM.md
+      - SQL: SQL.md
+      - Pandas: PANDAS.md
+      - Memory: MEMORY.md
+      - RAG: RAG.md
+  - Write your own: WRITING.md
+  - Examples: EXAMPLES.md
+  - Build docs: MKDOCS.md
+  - Changelog: CHANGELOG.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true

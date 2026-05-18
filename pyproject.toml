@@ -1,0 +1,100 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pydantic-ai-toolkits"
+version = "0.1.0"
+description = "Modular, independent tool kits (filesystem, SQL, pandas, memory, RAG, ...) for pydantic-ai agents."
+authors = [{ name = "wachawo" }]
+license = "MIT"
+license-files = ["LICENSE"]
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["pydantic-ai", "agents", "tools", "toolset", "llm"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Framework :: Pydantic",
+    "Framework :: Pydantic :: 2",
+]
+dependencies = [
+    "pydantic-ai-slim>=0.0.40",
+]
+
+[project.optional-dependencies]
+sql    = ["sqlalchemy>=2.0"]
+pandas = ["pandas>=2.0", "pyarrow>=15.0"]
+memory = []
+rag    = ["numpy>=1.26"]
+all    = ["pydantic-ai-toolkits[sql,pandas,memory,rag]"]
+
+[project.urls]
+Homepage = "https://github.com/wachawo/pydantic-ai-toolkits"
+Source   = "https://github.com/wachawo/pydantic-ai-toolkits"
+Issues   = "https://github.com/wachawo/pydantic-ai-toolkits/issues"
+
+[dependency-groups]
+dev  = ["pytest>=8.0", "pytest-cov>=5.0", "anyio>=4.5", "pyright>=1.1", "mypy>=1.10"]
+lint = ["ruff>=0.5", "black>=24.8"]
+docs = ["mkdocs>=1.6", "mkdocs-material>=9.5"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["pydantic_ai_toolkits"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = ["E501", "UP009"]
+
+[tool.black]
+line-length = 120
+target-version = ["py310", "py311", "py312", "py313"]
+
+[tool.pyright]
+include = ["pydantic_ai_toolkits", "tests"]
+pythonVersion = "3.10"
+typeCheckingMode = "basic"
+
+[tool.mypy]
+python_version = "3.10"
+files = ["pydantic_ai_toolkits"]
+ignore_missing_imports = true
+warn_unused_configs = true
+warn_redundant_casts = true
+check_untyped_defs = true
+no_implicit_optional = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+# Coverage flags live in the Makefile and CI invocations, not addopts —
+# that way plain `pytest` works in any env, and `pytest --cov` picks up
+# every option below (source, branch, fail_under, exclude_lines)
+# automatically once pytest-cov is installed.
+
+[tool.coverage.run]
+source = ["pydantic_ai_toolkits"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "\\.\\.\\.",
+]
+fail_under = 80
