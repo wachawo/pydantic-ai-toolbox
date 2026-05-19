@@ -8,6 +8,10 @@ and Parquet loaders work out of the box).
 
 [Pandas](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/examples/pandas_example.py) — Example load a CSV, count rows by condition
 
+```bash
+pip install pydantic-ai-toolbox
+```
+
 ```python
 import pandas as pd
 from pydantic_ai_toolbox import PandasToolset

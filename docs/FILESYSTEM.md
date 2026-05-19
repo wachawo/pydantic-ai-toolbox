@@ -7,6 +7,10 @@ dependency beyond the standard library.
 
 [Filesystem](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/examples/filesystem_example.py) — Example Create / Read / Append / Delete files
 
+```bash
+pip install pydantic-ai-toolbox
+```
+
 ```python
 from pydantic_ai_toolbox import FilesystemToolset
 

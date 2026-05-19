@@ -8,6 +8,10 @@ file via an atomic temp-file + `os.replace` swap.
 
 [Memory](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/examples/memory_example.py) — Example three-turn conversation with persisted facts
 
+```bash
+pip install pydantic-ai-toolbox
+```
+
 ```python
 from pydantic_ai_toolbox import MemoryToolset
 

@@ -9,6 +9,10 @@ atomically as a `.npz` + `.json` pair.
 
 [RAG](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/examples/rag_example.py) — Example retrieve-then-answer, override the model prior
 
+```bash
+pip install pydantic-ai-toolbox
+```
+
 ```python
 from pydantic_ai_toolbox import RAGToolset
 

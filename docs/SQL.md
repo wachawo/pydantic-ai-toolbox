@@ -7,6 +7,10 @@ Requires the `[sql]` extra.
 
 [SQL](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/examples/sql_example.py) — Example INSERT, UPDATE, SELECT via SQLite
 
+```bash
+pip install pydantic-ai-toolbox
+```
+
 ```python
 from pydantic_ai_toolbox import SQLToolset
 
