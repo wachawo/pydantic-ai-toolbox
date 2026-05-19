@@ -51,6 +51,15 @@ That's the whole story. Five toolkits, one `toolsets=[...]`, no new
 framework on top of pydantic-ai — each toolkit is a thin
 `FunctionToolset` subclass, exactly what pydantic-ai expects.
 
+Each toolkit in isolation — runnable against a local/remote Ollama, no API keys:
+
+- [Filesystem](examples/filesystem_example.py) — Example Create / Read / Append / Delete files
+- [SQL](examples/sql_example.py) — Example INSERT, UPDATE, SELECT via SQLite
+- [Pandas](examples/pandas_example.py) — Example load a CSV, count rows by condition
+- [Memory](examples/memory_example.py) — Example three-turn conversation with persisted facts
+- [RAG](examples/rag_example.py) — Example retrieve-then-answer, override the model prior
+- [Quickstart](examples/quickstart.py) — Example minimal one-tool smoke test
+
 ---
 
 ## Install
