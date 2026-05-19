@@ -27,8 +27,6 @@ from pathlib import Path
 from typing import Any
 
 from pydantic_ai import Agent
-from pydantic_ai.models.openai import OpenAIChatModel
-from pydantic_ai.providers.openai import OpenAIProvider
 from sqlalchemy import create_engine, text
 
 from pydantic_ai_toolkits import SQLToolkit
@@ -62,6 +60,9 @@ def seed_database(db_path: Path) -> None:
 
 
 def build_agent(sql: SQLToolkit) -> Agent:
+    from pydantic_ai.models.openai import OpenAIChatModel
+    from pydantic_ai.providers.openai import OpenAIProvider
+
     logging.info(f"Building agent with Ollama model {OLLAMA_MODEL} at {OLLAMA_BASE_URL}")
     model = OpenAIChatModel(
         OLLAMA_MODEL,

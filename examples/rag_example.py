@@ -24,8 +24,6 @@ import os
 from typing import Any
 
 from pydantic_ai import Agent
-from pydantic_ai.models.openai import OpenAIChatModel
-from pydantic_ai.providers.openai import OpenAIProvider
 
 from pydantic_ai_toolkits import RAGToolkit
 
@@ -58,6 +56,9 @@ def stub_embedder(texts: list[str]) -> list[list[float]]:
 
 
 def build_agent(rag: RAGToolkit) -> Agent:
+    from pydantic_ai.models.openai import OpenAIChatModel
+    from pydantic_ai.providers.openai import OpenAIProvider
+
     logging.info(f"Building agent with Ollama model {OLLAMA_MODEL} at {OLLAMA_BASE_URL}")
     model = OpenAIChatModel(
         OLLAMA_MODEL,

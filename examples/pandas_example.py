@@ -22,8 +22,6 @@ from pathlib import Path
 from typing import Any
 
 from pydantic_ai import Agent
-from pydantic_ai.models.openai import OpenAIChatModel
-from pydantic_ai.providers.openai import OpenAIProvider
 
 from pydantic_ai_toolkits import PandasToolkit
 
@@ -57,6 +55,9 @@ FR,18,1
 
 
 def build_agent(pd_kit: PandasToolkit) -> Agent:
+    from pydantic_ai.models.openai import OpenAIChatModel
+    from pydantic_ai.providers.openai import OpenAIProvider
+
     logging.info(f"Building agent with Ollama model {OLLAMA_MODEL} at {OLLAMA_BASE_URL}")
     model = OpenAIChatModel(
         OLLAMA_MODEL,
