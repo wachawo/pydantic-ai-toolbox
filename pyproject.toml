@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pydantic-ai-toolbox"
-version = "0.0.2"
+version = "0.0.1"
 description = "Modular, independent tool kits (filesystem, SQL, pandas, memory, RAG, ...) for pydantic-ai agents."
 authors = [{ name = "wachawo" }]
 license = "MIT"
