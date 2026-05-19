@@ -26,7 +26,6 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from dotenv import find_dotenv, load_dotenv
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.openai import OpenAIProvider
@@ -42,7 +41,12 @@ LOGGING: dict[str, Any] = {
 logging.basicConfig(**LOGGING)
 logger = logging.getLogger(__name__)
 
-load_dotenv(find_dotenv())
+try:
+    from dotenv import find_dotenv, load_dotenv
+
+    load_dotenv(find_dotenv())
+except ImportError:
+    pass  # python-dotenv is optional
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3:latest")
