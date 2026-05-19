@@ -44,7 +44,7 @@ mkdocs gh-deploy --force
 
 That command builds the site and pushes it to the `gh-pages` branch of the
 repo's `origin` remote. GitHub Pages serves whatever is on `gh-pages` at
-`https://wachawo.github.io/pydantic-ai-toolkits/` (matches the `site_url`
+`https://wachawo.github.io/pydantic-ai-toolbox/` (matches the `site_url`
 in `mkdocs.yml`). The current setup expects you to run this manually after
 a release; there is no scheduled or post-publish workflow that does it
 automatically.
@@ -55,7 +55,7 @@ automatically.
   root URL (`/`). Renaming it to `INDEX.md` would move the homepage to
   `/INDEX/` and break every link to the root.
 - Every other `docs/*.md` file is uppercase by project convention
-  (`INSTALL.md`, `FILESYSTEM.md`, `WRITING.md`, …) and is listed
+  (`INSTALL.md`, `FILESYSTEM.md`, `CUSTOM.md`, …) and is listed
   explicitly in the `nav:` block of `mkdocs.yml`.
 - `--strict` will fail the build if a file exists under `docs/` but
   isn't referenced from `nav`. To intentionally hide a file from the
@@ -72,14 +72,14 @@ automatically.
 3. Run `mkdocs build --strict` locally to confirm there are no broken
    links and no orphan-file warnings.
 
-## Adding a new toolkit page
+## Adding a new toolset page
 
-When you add a toolkit, the page goes under the existing `Toolkits:`
+When you add a toolset, the page goes under the existing `Toolsets:`
 group:
 
 ```yaml
 nav:
-  - Toolkits:
+  - Toolsets:
       - Filesystem: FILESYSTEM.md
       - SQL: SQL.md
       - …

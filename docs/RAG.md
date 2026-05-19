@@ -1,14 +1,18 @@
-# RAGToolkit
+# RAGToolset
+
+[README](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/README.md)
 
 Local retrieval-augmented generation: recursive character splitter plus an
 in-memory numpy vector index with cosine similarity. Requires the `[rag]`
 extra (numpy). No external vector database; the index can be persisted
 atomically as a `.npz` + `.json` pair.
 
-```python
-from pydantic_ai_toolkits import RAGToolkit
+[RAG](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/examples/rag_example.py) — Example retrieve-then-answer, override the model prior
 
-rag = RAGToolkit(
+```python
+from pydantic_ai_toolbox import RAGToolset
+
+rag = RAGToolset(
     embedder=my_embedder,
     chunk_size=1000,
     chunk_overlap=100,
@@ -78,7 +82,7 @@ def stub_embedder(texts: list[str]) -> list[list[float]]:
 ```
 
 To swap in a real embedder (e.g. OpenAI), replace the callable without
-touching the toolkit configuration.
+touching the toolset configuration.
 
 ## Document
 
@@ -100,7 +104,7 @@ class Document:
 
 ## Splitter behaviour
 
-`RAGToolkit` uses a recursive character splitter with a fixed separators
+`RAGToolset` uses a recursive character splitter with a fixed separators
 ladder: `["\n\n", "\n", " ", ""]`. It picks the longest separator that
 actually appears in the text and falls through to finer separators when a
 chunk still exceeds `chunk_size`. Adjacent chunks share up to
@@ -139,9 +143,9 @@ sidecar with an unexpected `version` is rejected on `load()`.
 Build a small index with the stub embedder:
 
 ```python
-from pydantic_ai_toolkits import RAGToolkit
+from pydantic_ai_toolbox import RAGToolset
 
-rag = RAGToolkit(embedder=stub_embedder, chunk_size=200, chunk_overlap=20)
+rag = RAGToolset(embedder=stub_embedder, chunk_size=200, chunk_overlap=20)
 rag.add_text("Cats purr when content.", metadata={"topic": "cats"}, doc_id="d1")
 rag.add_text("Dogs bark at strangers.", metadata={"topic": "dogs"}, doc_id="d2")
 print(rag.count())
@@ -166,9 +170,9 @@ of its own knowledge. Full script:
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.openai import OpenAIProvider
-from pydantic_ai_toolkits import RAGToolkit
+from pydantic_ai_toolbox import RAGToolset
 
-rag = RAGToolkit(embedder=stub_embedder, chunk_size=200, chunk_overlap=20)
+rag = RAGToolset(embedder=stub_embedder, chunk_size=200, chunk_overlap=20)
 rag.add_text("The sky is green.", doc_id="d-sky")
 
 agent = Agent(
@@ -196,7 +200,7 @@ The same setup without an LLM
 (`tests/test_example_flows.py::TestRAGFlow`):
 
 ```python
-rag = RAGToolkit(embedder=stub_embedder, chunk_size=200, chunk_overlap=20)
+rag = RAGToolset(embedder=stub_embedder, chunk_size=200, chunk_overlap=20)
 rag.add_text("The sky is green.", doc_id="d-sky")
 hits = rag.search("What color is the sky?", k=1)
 assert "green" in hits[0]["text"].lower()

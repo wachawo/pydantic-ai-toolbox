@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""FilesystemToolkit example: create, list, modify, read, delete, list.
+"""FilesystemToolset example: create, list, modify, read, delete, list.
 
 A temporary directory becomes the sandbox root. The agent is asked, in
 sequence, to:
@@ -12,13 +12,13 @@ sequence, to:
   5. Delete the file.
   6. List the sandbox contents again (should be empty).
 
-The toolkit rejects any path that would escape the sandbox, so the
+The toolset rejects any path that would escape the sandbox, so the
 agent literally cannot touch anything outside `root`.
 
 Prereqs:
 - ollama running locally
 - `ollama pull qwen3:latest`
-- `pip install pydantic-ai-toolkits`  (base install — stdlib only)
+- `pip install pydantic-ai-toolbox`  (base install — stdlib only)
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ from typing import Any
 
 from pydantic_ai import Agent
 
-from pydantic_ai_toolkits import FilesystemToolkit
+from pydantic_ai_toolbox import FilesystemToolset
 
 LOGGING: dict[str, Any] = {
     "format": "%(asctime)s.%(msecs)03d [%(levelname)s]: (%(name)s) %(message)s",
@@ -51,7 +51,7 @@ OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3:latest")
 
 
-def build_agent(fs: FilesystemToolkit) -> Agent:
+def main() -> None:
     from pydantic_ai.models.openai import OpenAIChatModel
     from pydantic_ai.providers.openai import OpenAIProvider
 
@@ -60,29 +60,27 @@ def build_agent(fs: FilesystemToolkit) -> Agent:
         OLLAMA_MODEL,
         provider=OpenAIProvider(base_url=OLLAMA_BASE_URL, api_key="ollama"),
     )
-    return Agent(
-        model=model,
-        toolsets=[fs],
-        system_prompt=(
-            "/no_think\n"
-            "You operate inside a sandboxed workspace. The sandbox root is "
-            "addressed as '.' (a single dot). To create or overwrite a "
-            "file call `write_file(path, content)`. To extend an existing "
-            "file call `append_file`. To read use `read_file`. To list "
-            "entries call `list_dir(path='.')`. To remove call `delete_file`. "
-            "All paths are relative to the sandbox root — never use absolute "
-            "paths like '/' and never use '..'. "
-            "REPORT EVERY TOOL RESULT VERBATIM. Never invent file or "
-            "directory names. If `list_dir` returns an empty list, "
-            "literally say 'the directory is empty'."
-        ),
-    )
 
-
-def main() -> None:
     with tempfile.TemporaryDirectory() as tmp:
-        fs = FilesystemToolkit(root=tmp, read_only=False)
-        agent = build_agent(fs)
+        agent = Agent(
+            model=model,
+            toolsets=[
+                FilesystemToolset(root=tmp, read_only=False)
+            ],
+            system_prompt=(
+                "/no_think\n"
+                "You operate inside a sandboxed workspace. The sandbox root is "
+                "addressed as '.' (a single dot). To create or overwrite a "
+                "file call `write_file(path, content)`. To extend an existing "
+                "file call `append_file`. To read use `read_file`. To list "
+                "entries call `list_dir(path='.')`. To remove call `delete_file`. "
+                "All paths are relative to the sandbox root — never use absolute "
+                "paths like '/' and never use '..'. "
+                "REPORT EVERY TOOL RESULT VERBATIM. Never invent file or "
+                "directory names. If `list_dir` returns an empty list, "
+                "literally say 'the directory is empty'."
+            ),
+        )
 
         turn1 = agent.run_sync('Create a file named "notes.txt" with the text "hello".')
         logger.info(f"Turn 1 (create):     {turn1.output}")
@@ -101,8 +99,6 @@ def main() -> None:
 
         turn6 = agent.run_sync("List every file at path '.' again.")
         logger.info(f"Turn 6 (list-2):     {turn6.output}")
-
-        logger.info(f"Final python-side fs.list_dir('.'): {fs.list_dir('.')}")
 
 
 if __name__ == "__main__":

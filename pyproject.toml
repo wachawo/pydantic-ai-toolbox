@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pydantic-ai-toolkits"
+name = "pydantic-ai-toolbox"
 version = "0.0.2"
 description = "Modular, independent tool kits (filesystem, SQL, pandas, memory, RAG, ...) for pydantic-ai agents."
 authors = [{ name = "wachawo" }]
@@ -34,7 +34,7 @@ sql    = ["sqlalchemy>=2.0"]
 pandas = ["pandas>=2.0", "pyarrow>=15.0"]
 memory = []
 rag    = ["numpy>=1.26"]
-all    = ["pydantic-ai-toolkits[sql,pandas,memory,rag]"]
+all    = ["pydantic-ai-toolbox[sql,pandas,memory,rag]"]
 
 [project.urls]
 Homepage = "https://github.com/wachawo/pydantic-ai-toolkits"
@@ -47,7 +47,7 @@ lint = ["ruff>=0.5", "black>=24.8"]
 docs = ["mkdocs>=1.6", "mkdocs-material>=9.5"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["pydantic_ai_toolkits"]
+packages = ["pydantic_ai_toolbox"]
 
 [tool.ruff]
 line-length = 120
@@ -62,13 +62,13 @@ line-length = 120
 target-version = ["py310", "py311", "py312", "py313"]
 
 [tool.pyright]
-include = ["pydantic_ai_toolkits", "tests"]
+include = ["pydantic_ai_toolbox", "tests"]
 pythonVersion = "3.10"
 typeCheckingMode = "basic"
 
 [tool.mypy]
 python_version = "3.10"
-files = ["pydantic_ai_toolkits"]
+files = ["pydantic_ai_toolbox"]
 ignore_missing_imports = true
 warn_unused_configs = true
 warn_redundant_casts = true
@@ -84,7 +84,7 @@ addopts = "-ra"
 # automatically once pytest-cov is installed.
 
 [tool.coverage.run]
-source = ["pydantic_ai_toolkits"]
+source = ["pydantic_ai_toolbox"]
 branch = true
 
 [tool.coverage.report]

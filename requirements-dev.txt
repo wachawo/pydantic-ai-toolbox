@@ -1,4 +1,4 @@
-# Development dependencies for pydantic-ai-toolkits.
+# Development dependencies for pydantic-ai-toolbox.
 # Mirror of pyproject.toml [dependency-groups] dev/lint/docs.
 # Use: pip install -r requirements-dev.txt
 #

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""End-to-end toolkit flows that mirror the runnable scripts in `examples/`.
+"""End-to-end toolset flows that mirror the runnable scripts in `examples/`.
 
 These exercise the same tool sequences an agent would issue, but call the
-toolkit methods directly so the tests stay fast and deterministic — no
+toolset methods directly so the tests stay fast and deterministic — no
 LLM, no network. If one of these fails, the matching example will fail
 against any model.
 """
@@ -21,9 +21,9 @@ class TestFilesystemFlow:
     """Mirrors examples/filesystem_example.py: create / list / modify / read / delete / list."""
 
     def test_full_flow(self, tmp_path: Path) -> None:
-        from pydantic_ai_toolkits import FilesystemToolkit
+        from pydantic_ai_toolbox import FilesystemToolset
 
-        fs = FilesystemToolkit(root=tmp_path, read_only=False)
+        fs = FilesystemToolset(root=tmp_path, read_only=False)
 
         # 1. create
         fs.write_file("notes.txt", "hello")
@@ -46,7 +46,7 @@ class TestSQLFlow:
         pytest.importorskip("sqlalchemy")
         from sqlalchemy import create_engine, text
 
-        from pydantic_ai_toolkits import SQLToolkit
+        from pydantic_ai_toolbox import SQLToolset
 
         db_path = tmp_path / "demo.db"
         engine = create_engine(f"sqlite:///{db_path}")
@@ -54,7 +54,7 @@ class TestSQLFlow:
             conn.execute(text("CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT NOT NULL, age INTEGER)"))
         engine.dispose()
 
-        sql = SQLToolkit(dsn=f"sqlite:///{db_path}", read_only=False)
+        sql = SQLToolset(dsn=f"sqlite:///{db_path}", read_only=False)
         # INSERT
         sql.execute("INSERT INTO users (name, age) VALUES (:n, :a)", params={"n": "Alex", "a": 30})
         # UPDATE
@@ -69,7 +69,7 @@ class TestPandasFlow:
 
     def test_count_rows_above_threshold(self, tmp_path: Path) -> None:
         pytest.importorskip("pandas")
-        from pydantic_ai_toolkits import PandasToolkit
+        from pydantic_ai_toolbox import PandasToolset
 
         csv_path = tmp_path / "sales.csv"
         csv_path.write_text(
@@ -77,7 +77,7 @@ class TestPandasFlow:
             encoding="utf-8",
         )
 
-        pd_kit = PandasToolkit()
+        pd_kit = PandasToolset()
         pd_kit.load_csv("sales", str(csv_path))
         rows = pd_kit.query("sales", "price > 20", limit=1000)
         assert len(rows) == 4
@@ -89,9 +89,9 @@ class TestMemoryFlow:
     """Mirrors examples/memory_example.py: set_fact then retrieve via get_fact."""
 
     def test_set_and_recall(self) -> None:
-        from pydantic_ai_toolkits import MemoryToolkit
+        from pydantic_ai_toolbox import MemoryToolset
 
-        mem = MemoryToolkit()
+        mem = MemoryToolset()
         # Turn 1: agent would set the fact
         mem.set_fact("user_name", "Alex")
         # Turn 2: unrelated work (no memory needed)
@@ -105,7 +105,7 @@ class TestRAGFlow:
 
     def test_search_returns_indexed_fact(self) -> None:
         pytest.importorskip("numpy")
-        from pydantic_ai_toolkits import RAGToolkit
+        from pydantic_ai_toolbox import RAGToolset
 
         def stub_embedder(texts: list[str]) -> list[list[float]]:
             out: list[list[float]] = []
@@ -114,7 +114,7 @@ class TestRAGFlow:
                 out.append([(b - 128) / 128.0 for b in digest])
             return out
 
-        rag = RAGToolkit(embedder=stub_embedder, chunk_size=200, chunk_overlap=20)
+        rag = RAGToolset(embedder=stub_embedder, chunk_size=200, chunk_overlap=20)
         rag.add_text("The sky is green.", doc_id="d-sky")
 
         hits = rag.search("What color is the sky?", k=1)

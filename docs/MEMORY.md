@@ -1,13 +1,17 @@
-# MemoryToolkit
+# MemoryToolset
+
+[README](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/README.md)
 
 Local conversation buffer plus key/value scratchpad. Stdlib-only — no extra
 required. State is held in memory and optionally persisted as a single JSON
 file via an atomic temp-file + `os.replace` swap.
 
-```python
-from pydantic_ai_toolkits import MemoryToolkit
+[Memory](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/examples/memory_example.py) — Example three-turn conversation with persisted facts
 
-mem = MemoryToolkit(
+```python
+from pydantic_ai_toolbox import MemoryToolset
+
+mem = MemoryToolset(
     storage_path="./memory.json",
     max_messages=200,
     max_chars=None,
@@ -49,7 +53,7 @@ key/value map; both messages and facts are scoped by `namespace`.
 
 ## Persistence
 
-When `storage_path` is set, the toolkit serialises every namespace into a
+When `storage_path` is set, the toolset serialises every namespace into a
 single JSON file. Writes go to `<path>.tmp` and are committed with
 `os.replace`, so readers never see a partial file.
 
@@ -79,7 +83,7 @@ namespace's state. They are intended for tests and introspection only;
 mutating the returned objects does not affect the store.
 
 ```python
-mem = MemoryToolkit()
+mem = MemoryToolset()
 mem.add_message("user", "Hello")
 mem.set_fact("favourite_color", "blue")
 
@@ -99,9 +103,9 @@ across runs. Full script:
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.openai import OpenAIProvider
-from pydantic_ai_toolkits import MemoryToolkit
+from pydantic_ai_toolbox import MemoryToolset
 
-mem = MemoryToolkit()
+mem = MemoryToolset()
 agent = Agent(
     model=OpenAIChatModel(
         "qwen3:8b",
@@ -130,7 +134,7 @@ The same flow without an LLM
 (`tests/test_example_flows.py::TestMemoryFlow`):
 
 ```python
-mem = MemoryToolkit()
+mem = MemoryToolset()
 mem.set_fact("user_name", "Alex")
 assert mem.get_fact("user_name") == "Alex"
 assert mem.list_facts() == {"user_name": "Alex"}

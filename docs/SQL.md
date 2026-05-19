@@ -1,19 +1,23 @@
-# SQLToolkit
+# SQLToolset
+
+[README](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/README.md)
 
 SQLAlchemy-backed schema introspection and parameterised queries.
 Requires the `[sql]` extra.
 
-```python
-from pydantic_ai_toolkits import SQLToolkit
+[SQL](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/examples/sql_example.py) — Example INSERT, UPDATE, SELECT via SQLite
 
-db = SQLToolkit(
+```python
+from pydantic_ai_toolbox import SQLToolset
+
+db = SQLToolset(
     dsn="postgresql://user:pwd@localhost/app",
     read_only=True,
     max_rows=1_000,
 )
 ```
 
-By default the toolkit accepts only `SELECT`/`WITH`/`SHOW`/`EXPLAIN`/`PRAGMA`
+By default the toolset accepts only `SELECT`/`WITH`/`SHOW`/`EXPLAIN`/`PRAGMA`
 statements (single-statement, no trailing extras). Set `read_only=False`
 to enable `execute()` against mutating statements.
 
@@ -29,7 +33,7 @@ to enable `execute()` against mutating statements.
 
 ## Parameter style
 
-`SQLToolkit` runs statements through SQLAlchemy's `text()`, which uses
+`SQLToolset` runs statements through SQLAlchemy's `text()`, which uses
 **named** placeholders. Always write `:name` and pass values via the
 `params` dict whose keys match. Positional `?`-style placeholders will
 raise `Incorrect number of bindings supplied`.
@@ -53,7 +57,7 @@ from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.openai import OpenAIProvider
 from sqlalchemy import create_engine, text
-from pydantic_ai_toolkits import SQLToolkit
+from pydantic_ai_toolbox import SQLToolset
 
 with tempfile.TemporaryDirectory() as tmp:
     db_path = Path(tmp) / "demo.db"
@@ -65,7 +69,7 @@ with tempfile.TemporaryDirectory() as tmp:
         ))
     engine.dispose()
 
-    sql = SQLToolkit(dsn=f"sqlite:///{db_path}", read_only=False)
+    sql = SQLToolset(dsn=f"sqlite:///{db_path}", read_only=False)
     agent = Agent(
         model=OpenAIChatModel(
             "qwen3:8b",
@@ -96,7 +100,7 @@ The same sequence without an LLM
 (`tests/test_example_flows.py::TestSQLFlow`):
 
 ```python
-sql = SQLToolkit(dsn=f"sqlite:///{db_path}", read_only=False)
+sql = SQLToolset(dsn=f"sqlite:///{db_path}", read_only=False)
 sql.execute("INSERT INTO users (name, age) VALUES (:n, :a)", params={"n": "Alex", "a": 30})
 sql.execute("UPDATE users SET age = :a WHERE name = :n", params={"a": 31, "n": "Alex"})
 rows = sql.query("SELECT id, name, age FROM users ORDER BY id")

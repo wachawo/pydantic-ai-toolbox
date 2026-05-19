@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""PandasToolkit example: load a CSV, count rows by condition.
+"""PandasToolset example: load a CSV, count rows by condition.
 
-Creates a small `sales.csv` on disk, points the toolkit at it, then asks
+Creates a small `sales.csv` on disk, points the toolset at it, then asks
 the agent: how many rows have price > 20? The agent should call
 `load_csv`, then `query` (or `value_counts`/`aggregate`), and report
 the count.
@@ -10,7 +10,7 @@ the count.
 Prereqs:
 - ollama running locally
 - `ollama pull qwen3:latest`
-- `pip install "pydantic-ai-toolkits[pandas]"`
+- `pip install "pydantic-ai-toolbox[pandas]"`
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ from typing import Any
 
 from pydantic_ai import Agent
 
-from pydantic_ai_toolkits import PandasToolkit
+from pydantic_ai_toolbox import PandasToolset
 
 LOGGING: dict[str, Any] = {
     "format": "%(asctime)s.%(msecs)03d [%(levelname)s]: (%(name)s) %(message)s",
@@ -54,7 +54,7 @@ FR,18,1
 """
 
 
-def build_agent(pd_kit: PandasToolkit) -> Agent:
+def main() -> None:
     from pydantic_ai.models.openai import OpenAIChatModel
     from pydantic_ai.providers.openai import OpenAIProvider
 
@@ -63,29 +63,26 @@ def build_agent(pd_kit: PandasToolkit) -> Agent:
         OLLAMA_MODEL,
         provider=OpenAIProvider(base_url=OLLAMA_BASE_URL, api_key="ollama"),
     )
-    return Agent(
-        model=model,
-        toolsets=[pd_kit],
-        system_prompt=(
-            "/no_think\n"
-            "You analyse pandas dataframes through your tools. "
-            "Workflow: FIRST call `load_csv(name, path)` and WAIT for its "
-            "result. Only AFTER load_csv returns, in a NEW assistant turn, "
-            "call `query(name, expr)` with a pandas-query expression like "
-            "'price > 20'. Never call load_csv and query in the same response. "
-            "The number of rows returned by `query` IS the count — do not "
-            "invent numbers."
-        ),
-    )
 
-
-def main() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         csv_path = Path(tmp) / "sales.csv"
         csv_path.write_text(SAMPLE_CSV, encoding="utf-8")
 
-        pd_kit = PandasToolkit()
-        agent = build_agent(pd_kit)
+        pd_kit = PandasToolset()
+        agent = Agent(
+            model=model,
+            toolsets=[pd_kit],
+            system_prompt=(
+                "/no_think\n"
+                "You analyse pandas dataframes through your tools. "
+                "Workflow: FIRST call `load_csv(name, path)` and WAIT for its "
+                "result. Only AFTER load_csv returns, in a NEW assistant turn, "
+                "call `query(name, expr)` with a pandas-query expression like "
+                "'price > 20'. Never call load_csv and query in the same response. "
+                "The number of rows returned by `query` IS the count — do not "
+                "invent numbers."
+            ),
+        )
 
         prompt = (
             f"There is a CSV at {csv_path}. Load it under the name 'sales' "
@@ -93,7 +90,7 @@ def main() -> None:
         )
         reply = agent.run_sync(prompt)
         logger.info(f"Agent reply: {reply.output}")
-        logger.info(f"Registered dataframes: {pd_kit.list_dataframes()}")
+        logger.info(f"Final python-side pd_kit.list_dataframes(): {pd_kit.list_dataframes()}")
 
 
 if __name__ == "__main__":

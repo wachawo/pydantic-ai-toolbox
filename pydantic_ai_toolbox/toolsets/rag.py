@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Local RAG toolkit: recursive text splitter + numpy vector index."""
+"""Local RAG toolset: recursive text splitter + numpy vector index."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal, Protocol
 
-from ..base import BaseToolkit, tool
+from ..base import BaseToolset, tool
 
 logger = logging.getLogger(__name__)
 
@@ -387,8 +387,8 @@ def load_npz(np_mod: Any, base_path: Path) -> Any:
         return np_mod.array(data["vectors"])
 
 
-class RAGToolkit(BaseToolkit):
-    """Retrieval-augmented generation toolkit: split, embed, store, search.
+class RAGToolset(BaseToolset):
+    """Retrieval-augmented generation toolset: split, embed, store, search.
 
     Text is chunked with a recursive character splitter, embedded via a
     user-supplied callable, and stored in an in-memory numpy matrix indexed
@@ -410,7 +410,7 @@ class RAGToolkit(BaseToolkit):
             import numpy as np
         except ImportError as exc:
             raise ImportError(
-                "RAGToolkit requires numpy. Install via `pip install pydantic-ai-toolkits[rag]`."
+                "RAGToolset requires numpy. Install via `pip install pydantic-ai-toolbox[rag]`."
             ) from exc
 
         if not callable(embedder):
@@ -448,7 +448,7 @@ class RAGToolkit(BaseToolkit):
         self.index = VectorIndex(np)
         super().__init__()
         logger.info(
-            f"RAGToolkit ready: namespace={namespace} chunk_size={chunk_size} "
+            f"RAGToolset ready: namespace={namespace} chunk_size={chunk_size} "
             f"chunk_overlap={chunk_overlap} max_results={max_results} "
             f"storage_path={path}"
         )
@@ -636,7 +636,7 @@ class RAGToolkit(BaseToolkit):
         """Persist the index atomically to `<path>.npz` + `<path>.json`. Returns the base path."""
         base = Path(path).expanduser().resolve() if path is not None else self.storage_path
         if base is None:
-            raise ValueError("save() requires a path (none configured on the toolkit)")
+            raise ValueError("save() requires a path (none configured on the toolset)")
         if not base.parent.exists():
             raise FileNotFoundError(f"Parent directory does not exist: {base.parent}")
         self.index.consolidate()
@@ -658,7 +658,7 @@ class RAGToolkit(BaseToolkit):
         """Load a previously-saved index. Overwrites in-memory state; returns chunk count."""
         base = Path(path).expanduser().resolve() if path is not None else self.storage_path
         if base is None:
-            raise ValueError("load() requires a path (none configured on the toolkit)")
+            raise ValueError("load() requires a path (none configured on the toolset)")
         npz_path = base.parent / (base.name + ".npz")
         json_path = base.with_suffix(base.suffix + ".json")
         if not npz_path.exists():

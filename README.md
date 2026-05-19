@@ -1,10 +1,10 @@
-# pydantic-ai-toolkits
+# pydantic-ai-toolbox
 
 [![CI](https://github.com/wachawo/pydantic-ai-toolkits/actions/workflows/ci.yml/badge.svg)](https://github.com/wachawo/pydantic-ai-toolkits/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/pydantic-ai-toolkits.svg)](https://pypi.org/project/pydantic-ai-toolkits/)
-[![Downloads](https://img.shields.io/pypi/dm/pydantic-ai-toolkits.svg)](https://pypi.org/project/pydantic-ai-toolkits/)
+[![PyPI](https://img.shields.io/pypi/v/pydantic-ai-toolbox.svg)](https://pypi.org/project/pydantic-ai-toolbox/)
+[![Downloads](https://img.shields.io/pypi/dm/pydantic-ai-toolbox.svg)](https://pypi.org/project/pydantic-ai-toolbox/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/LICENSE)
-[![Python](https://img.shields.io/pypi/pyversions/pydantic-ai-toolkits.svg)](https://pypi.org/project/pydantic-ai-toolkits/)
+[![Python](https://img.shields.io/pypi/pyversions/pydantic-ai-toolbox.svg)](https://pypi.org/project/pydantic-ai-toolbox/)
 
 If you've used [pydantic-ai](https://github.com/pydantic/pydantic-ai), you already know
 the feeling: it's the first agent framework that feels like a regular
@@ -23,23 +23,23 @@ After the third project where you wrote those by hand, the shape stops
 being interesting. This is them, written once:
 
 ```bash
-pip install pydantic-ai-toolkits
+pip install pydantic-ai-toolbox
 ```
 
 ```python
 from pydantic_ai import Agent
-from pydantic_ai_toolkits import (
-    FilesystemToolkit, SQLToolkit, PandasToolkit, MemoryToolkit, RAGToolkit,
+from pydantic_ai_toolbox import (
+    FilesystemToolset, SQLToolset, PandasToolset, MemoryToolset, RAGToolset,
 )
 
 agent = Agent(
     "openai:gpt-4o-mini",
     toolsets=[
-        FilesystemToolkit(root="./workspace", read_only=False),
-        SQLToolkit(dsn="postgresql://user:pwd@localhost/app"),
-        PandasToolkit(),
-        MemoryToolkit(storage_path="./memory.json"),
-        RAGToolkit(embedder=my_embedder),
+        FilesystemToolset(root="./workspace", read_only=False),
+        SQLToolset(dsn="postgresql://user:pwd@localhost/app"),
+        PandasToolset(),
+        MemoryToolset(storage_path="./memory.json"),
+        RAGToolset(embedder=my_embedder),
     ],
     system_prompt="You are a data assistant.",
 )
@@ -47,11 +47,11 @@ agent = Agent(
 print(agent.run_sync("Read README.md from the workspace and summarise it.").output)
 ```
 
-That's the whole story. Five toolkits, one `toolsets=[...]`, no new
-framework on top of pydantic-ai — each toolkit is a thin
+That's the whole story. Five toolsets, one `toolsets=[...]`, no new
+framework on top of pydantic-ai — each toolset is a thin
 `FunctionToolset` subclass, exactly what pydantic-ai expects.
 
-Each toolkit in isolation — runnable against a local/remote Ollama, no API keys:
+Each toolset in isolation — runnable against a local/remote Ollama, no API keys:
 
 - [Filesystem](examples/filesystem_example.py) — Example Create / Read / Append / Delete files
 - [SQL](examples/sql_example.py) — Example INSERT, UPDATE, SELECT via SQLite
@@ -65,17 +65,17 @@ Each toolkit in isolation — runnable against a local/remote Ollama, no API key
 ## Install
 
 ```bash
-pip install pydantic-ai-toolkits
+pip install pydantic-ai-toolbox
 ```
 
-The base install gives you `FilesystemToolkit` and `MemoryToolkit`
+The base install gives you `FilesystemToolset` and `MemoryToolset`
 (stdlib only). The rest are opt-in so you only pull in what you use:
 
 ```bash
-pip install "pydantic-ai-toolkits[sql]"      # + SQLAlchemy
-pip install "pydantic-ai-toolkits[pandas]"   # + pandas + pyarrow
-pip install "pydantic-ai-toolkits[rag]"      # + numpy
-pip install "pydantic-ai-toolkits[all]"      # everything
+pip install "pydantic-ai-toolbox[sql]"      # + SQLAlchemy
+pip install "pydantic-ai-toolbox[pandas]"   # + pandas + pyarrow
+pip install "pydantic-ai-toolbox[rag]"      # + numpy
+pip install "pydantic-ai-toolbox[all]"      # everything
 ```
 
 Extras are independent — picking up one doesn't pull in the others.
@@ -83,33 +83,33 @@ Details: [docs/INSTALL.md](docs/INSTALL.md).
 
 ---
 
-## Toolkits
+## Toolsets
 
-| Toolkit                | What an agent can do with it                                   | Docs                                |
+| Toolset                | What an agent can do with it                                   | Docs                                |
 |------------------------|----------------------------------------------------------------|-------------------------------------|
-| `FilesystemToolkit`    | List, read, write, append, delete, mkdir, stat, glob — under one sandbox root, with path-escape rejection and an optional read-only mode. | [docs/FILESYSTEM.md](docs/FILESYSTEM.md) |
-| `SQLToolkit`           | List tables/views, describe schemas, run parameterised reads, optional `execute` for writes. Single-statement read-only by default. | [docs/SQL.md](docs/SQL.md)               |
-| `PandasToolkit`        | Manage a named dataframe registry; load CSV/Parquet; head / describe / schema / query / aggregate / value_counts. | [docs/PANDAS.md](docs/PANDAS.md)         |
-| `MemoryToolkit`        | Append/read/search messages; key-value scratchpad facts; optional atomic JSON persistence and per-namespace isolation. | [docs/MEMORY.md](docs/MEMORY.md)         |
-| `RAGToolkit`           | Recursive character text splitter + in-memory numpy vector index with cosine search and per-document delete. | [docs/RAG.md](docs/RAG.md)               |
+| `FilesystemToolset`    | List, read, write, append, delete, mkdir, stat, glob — under one sandbox root, with path-escape rejection and an optional read-only mode. | [docs/FILESYSTEM.md](docs/FILESYSTEM.md) |
+| `SQLToolset`           | List tables/views, describe schemas, run parameterised reads, optional `execute` for writes. Single-statement read-only by default. | [docs/SQL.md](docs/SQL.md)               |
+| `PandasToolset`        | Manage a named dataframe registry; load CSV/Parquet; head / describe / schema / query / aggregate / value_counts. | [docs/PANDAS.md](docs/PANDAS.md)         |
+| `MemoryToolset`        | Append/read/search messages; key-value scratchpad facts; optional atomic JSON persistence and per-namespace isolation. | [docs/MEMORY.md](docs/MEMORY.md)         |
+| `RAGToolset`           | Recursive character text splitter + in-memory numpy vector index with cosine search and per-document delete. | [docs/RAG.md](docs/RAG.md)               |
 
 Tiny snippets to taste each one:
 
 ```python
 # Filesystem — sandbox a workspace, then let the agent edit files
-FilesystemToolkit(root="./workspace", read_only=False)
+FilesystemToolset(root="./workspace", read_only=False)
 
 # SQL — read-only Postgres
-SQLToolkit(dsn="postgresql://user:pwd@localhost/app")
+SQLToolset(dsn="postgresql://user:pwd@localhost/app")
 
 # Pandas — start with an empty registry, agent loads CSVs as needed
-PandasToolkit()
+PandasToolset()
 
 # Memory — persisted scratchpad, 200-message cap
-MemoryToolkit(storage_path="./memory.json", max_messages=200)
+MemoryToolset(storage_path="./memory.json", max_messages=200)
 
 # RAG — bring your own embedder
-RAGToolkit(embedder=lambda texts: [embed(t) for t in texts])
+RAGToolset(embedder=lambda texts: [embed(t) for t in texts])
 ```
 
 Runnable end-to-end scripts live in [examples/](examples/) (see
@@ -119,7 +119,7 @@ Runnable end-to-end scripts live in [examples/](examples/) (see
 
 ## What's not in here (and where to find it)
 
-Before reaching for a toolkit here, check whether `pydantic-ai` already
+Before reaching for a toolset here, check whether `pydantic-ai` already
 ships the capability you need — most of the time it does:
 
 | Need                                          | Use this                                                 |
@@ -137,15 +137,15 @@ vector DB.
 
 ---
 
-## Write your own toolkit
+## Write your own toolset
 
-A toolkit is a `BaseToolkit` subclass whose public methods carry `@tool`:
+A toolset is a `BaseToolset` subclass whose public methods carry `@tool`:
 
 ```python
-from pydantic_ai_toolkits import BaseToolkit, tool
+from pydantic_ai_toolbox import BaseToolset, tool
 
 
-class WeatherToolkit(BaseToolkit):
+class WeatherToolset(BaseToolset):
     """Look up current weather for a configurable provider."""
 
     def __init__(self, api_key: str, units: str = "metric") -> None:
@@ -160,7 +160,7 @@ class WeatherToolkit(BaseToolkit):
 ```
 
 Full rules, schema-mapping table, and the contribution checklist:
-[docs/WRITING.md](docs/WRITING.md), [AGENTS.md](AGENTS.md).
+[docs/CUSTOM.md](docs/CUSTOM.md), [AGENTS.md](AGENTS.md).
 
 ---
 
@@ -173,8 +173,8 @@ pip install git+https://github.com/wachawo/pydantic-ai-toolkits.git
 ## Install from source (local development)
 
 ```bash
-git clone git@github.com:wachawo/pydantic-ai-toolkits.git
-cd pydantic-ai-toolkits
+git clone git@github.com:wachawo/pydantic-ai-toolbox.git
+cd pydantic-ai-toolbox
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[all]"
@@ -190,8 +190,8 @@ Rendered with MkDocs at [docs/](docs/):
 
 - [Overview](docs/index.md)
 - [Install](docs/INSTALL.md)
-- Toolkits: [Filesystem](docs/FILESYSTEM.md), [SQL](docs/SQL.md), [Pandas](docs/PANDAS.md), [Memory](docs/MEMORY.md), [RAG](docs/RAG.md)
-- [Write your own](docs/WRITING.md)
+- Toolsets: [Filesystem](docs/FILESYSTEM.md), [SQL](docs/SQL.md), [Pandas](docs/PANDAS.md), [Memory](docs/MEMORY.md), [RAG](docs/RAG.md)
+- [Write your own](docs/CUSTOM.md)
 - [Examples](docs/EXAMPLES.md)
 - [Building the docs site](docs/MKDOCS.md)
 - [Changelog](CHANGELOG.md)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Sandboxed filesystem toolkit for pydantic-ai agents."""
+"""Sandboxed filesystem toolset for pydantic-ai agents."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ import logging
 import os
 from pathlib import Path
 
-from ..base import BaseToolkit, tool
+from ..base import BaseToolset, tool
 
 logger = logging.getLogger(__name__)
 
@@ -16,12 +16,12 @@ DEFAULT_MAX_BYTES = 1_000_000
 DEFAULT_MAX_GLOB_RESULTS = 500
 
 
-class FilesystemToolkit(BaseToolkit):
+class FilesystemToolset(BaseToolset):
     """Read and (optionally) write files under a single sandbox directory.
 
     All tool arguments are paths relative to `root`. Absolute paths and any
     `..` segments that escape `root` are rejected. Writes raise when the
-    toolkit is configured as read-only.
+    toolset is configured as read-only.
     """
 
     def __init__(
@@ -42,7 +42,7 @@ class FilesystemToolkit(BaseToolkit):
         self.max_glob_results = max_glob_results
         self.encoding = encoding
         super().__init__()
-        logger.info(f"FilesystemToolkit ready: root={self.root} read_only={self.read_only}")
+        logger.info(f"FilesystemToolset ready: root={self.root} read_only={self.read_only}")
 
     def resolve(self, rel: str) -> Path:
         if rel is None or rel == "":
@@ -56,7 +56,7 @@ class FilesystemToolkit(BaseToolkit):
 
     def require_writable(self) -> None:
         if self.read_only:
-            raise PermissionError("FilesystemToolkit is configured as read-only")
+            raise PermissionError("FilesystemToolset is configured as read-only")
 
     @tool
     def list_dir(self, path: str = ".") -> list[str]:

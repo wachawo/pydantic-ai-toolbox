@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""MemoryToolkit example: a three-turn conversation with a local Ollama model.
+"""MemoryToolset example: a three-turn conversation with a local Ollama model.
 
 Runs against `qwen3:latest` via Ollama (OpenAI-compatible endpoint at
-http://localhost:11434/v1). The agent has `MemoryToolkit` so facts learnt
+http://localhost:11434/v1). The agent has `MemoryToolset` so facts learnt
 in turn 1 are retrievable in turn 3 even though the conversation history
 between runs is not carried over by the agent itself.
 
 Prereqs:
 - ollama running locally
 - `ollama pull qwen3:latest`
-- `pip install "pydantic-ai-toolkits[all]"` (only stdlib is strictly required for memory)
+- `pip install pydantic-ai-toolbox`  (memory is stdlib-only)
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ from typing import Any
 
 from pydantic_ai import Agent
 
-from pydantic_ai_toolkits import MemoryToolkit
+from pydantic_ai_toolbox import MemoryToolset
 
 LOGGING: dict[str, Any] = {
     "format": "%(asctime)s.%(msecs)03d [%(levelname)s]: (%(name)s) %(message)s",
@@ -42,7 +42,7 @@ OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3:latest")
 
 
-def build_agent(mem: MemoryToolkit) -> Agent:
+def main() -> None:
     from pydantic_ai.models.openai import OpenAIChatModel
     from pydantic_ai.providers.openai import OpenAIProvider
 
@@ -51,7 +51,9 @@ def build_agent(mem: MemoryToolkit) -> Agent:
         OLLAMA_MODEL,
         provider=OpenAIProvider(base_url=OLLAMA_BASE_URL, api_key="ollama"),
     )
-    return Agent(
+
+    mem = MemoryToolset()
+    agent = Agent(
         model=model,
         toolsets=[mem],
         system_prompt=(
@@ -64,11 +66,6 @@ def build_agent(mem: MemoryToolkit) -> Agent:
         ),
     )
 
-
-def main() -> None:
-    mem = MemoryToolkit()
-    agent = build_agent(mem)
-
     turn1 = agent.run_sync("Hi! My name is Alex.")
     logger.info(f"Turn 1 (introduction): {turn1.output}")
 
@@ -78,7 +75,7 @@ def main() -> None:
     turn3 = agent.run_sync("Can you remind me what my name is?")
     logger.info(f"Turn 3 (recall):       {turn3.output}")
 
-    logger.info(f"Stored facts after run: {mem.list_facts()}")
+    logger.info(f"Final python-side mem.list_facts(): {mem.list_facts()}")
 
 
 if __name__ == "__main__":

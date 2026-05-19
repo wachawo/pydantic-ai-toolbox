@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Quickstart: combine multiple toolkits inside a single pydantic-ai agent."""
+"""Quickstart: combine multiple toolsets inside a single pydantic-ai agent."""
 
 from __future__ import annotations
 
@@ -10,11 +10,11 @@ from typing import Any
 
 from pydantic_ai import Agent
 
-from pydantic_ai_toolkits import (
-    FilesystemToolkit,
-    MemoryToolkit,
-    PandasToolkit,
-    SQLToolkit,
+from pydantic_ai_toolbox import (
+    FilesystemToolset,
+    MemoryToolset,
+    PandasToolset,
+    SQLToolset,
 )
 
 LOGGING: dict[str, Any] = {
@@ -27,10 +27,10 @@ logger = logging.getLogger(__name__)
 
 
 def build_agent() -> Agent:
-    fs = FilesystemToolkit(root="./workspace", read_only=False)
-    db = SQLToolkit(dsn=os.getenv("DATABASE_URL", "sqlite:///demo.db"), read_only=True)
-    pd_kit = PandasToolkit()
-    mem = MemoryToolkit()
+    fs = FilesystemToolset(root="./workspace", read_only=False)
+    db = SQLToolset(dsn=os.getenv("DATABASE_URL", "sqlite:///demo.db"), read_only=True)
+    pd_kit = PandasToolset()
+    mem = MemoryToolset()
 
     agent = Agent(
         model=os.getenv("LLM_MODEL", "openai:gpt-4o-mini"),

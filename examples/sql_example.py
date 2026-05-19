@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""SQLToolkit example: INSERT then UPDATE then SELECT via an agent.
+"""SQLToolset example: INSERT then UPDATE then SELECT via an agent.
 
-A fresh SQLite file is created with one `users` table. The toolkit is
+A fresh SQLite file is created with one `users` table. The toolset is
 configured as read-write so `execute` can run mutations. The agent is
 asked, in sequence, to:
 
@@ -15,7 +15,7 @@ Each turn produces a separate run; the row state evolves on disk.
 Prereqs:
 - ollama running locally
 - `ollama pull qwen3:latest`
-- `pip install "pydantic-ai-toolkits[sql]"`
+- `pip install "pydantic-ai-toolbox[sql]"`
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ from typing import Any
 from pydantic_ai import Agent
 from sqlalchemy import create_engine, text
 
-from pydantic_ai_toolkits import SQLToolkit
+from pydantic_ai_toolbox import SQLToolset
 
 LOGGING: dict[str, Any] = {
     "format": "%(asctime)s.%(msecs)03d [%(levelname)s]: (%(name)s) %(message)s",
@@ -59,7 +59,7 @@ def seed_database(db_path: Path) -> None:
     engine.dispose()
 
 
-def build_agent(sql: SQLToolkit) -> Agent:
+def main() -> None:
     from pydantic_ai.models.openai import OpenAIChatModel
     from pydantic_ai.providers.openai import OpenAIProvider
 
@@ -68,32 +68,29 @@ def build_agent(sql: SQLToolkit) -> Agent:
         OLLAMA_MODEL,
         provider=OpenAIProvider(base_url=OLLAMA_BASE_URL, api_key="ollama"),
     )
-    return Agent(
-        model=model,
-        toolsets=[sql],
-        system_prompt=(
-            "/no_think\n"
-            "You operate on a SQLite database via two tools: `query` for "
-            "read-only SELECT statements, and `execute` for writes "
-            "(INSERT/UPDATE/DELETE). "
-            "ALWAYS use named SQLAlchemy placeholders like `:name`, "
-            "NEVER positional `?` placeholders. Pass values via the "
-            "`params` argument as a dict whose keys match the placeholders. "
-            "Example: execute('INSERT INTO users (name, age) VALUES (:n, :a)', "
-            "params={'n': 'Alex', 'a': 30}). "
-            "After a successful write, summarise what changed. After a read, "
-            "summarise the rows."
-        ),
-    )
 
-
-def main() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         db_path = Path(tmp) / "demo.db"
         seed_database(db_path)
 
-        sql = SQLToolkit(dsn=f"sqlite:///{db_path}", read_only=False)
-        agent = build_agent(sql)
+        sql = SQLToolset(dsn=f"sqlite:///{db_path}", read_only=False)
+        agent = Agent(
+            model=model,
+            toolsets=[sql],
+            system_prompt=(
+                "/no_think\n"
+                "You operate on a SQLite database via two tools: `query` for "
+                "read-only SELECT statements, and `execute` for writes "
+                "(INSERT/UPDATE/DELETE). "
+                "ALWAYS use named SQLAlchemy placeholders like `:name`, "
+                "NEVER positional `?` placeholders. Pass values via the "
+                "`params` argument as a dict whose keys match the placeholders. "
+                "Example: execute('INSERT INTO users (name, age) VALUES (:n, :a)', "
+                "params={'n': 'Alex', 'a': 30}). "
+                "After a successful write, summarise what changed. After a read, "
+                "summarise the rows."
+            ),
+        )
 
         turn1 = agent.run_sync("Insert a new user named Alex, age 30, into the users table.")
         logger.info(f"Turn 1 (INSERT): {turn1.output}")
@@ -103,6 +100,8 @@ def main() -> None:
 
         turn3 = agent.run_sync("Select every row from users and tell me what's there.")
         logger.info(f"Turn 3 (SELECT): {turn3.output}")
+
+        logger.info(f"Final python-side sql.query('SELECT * FROM users'): {sql.query('SELECT * FROM users')}")
 
 
 if __name__ == "__main__":

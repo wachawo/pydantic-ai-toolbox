@@ -990,7 +990,7 @@ wheels = [
 ]
 
 [[package]]
-name = "pydantic-ai-toolkits"
+name = "pydantic-ai-toolbox"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""RAGToolkit example: override model priors with retrieved facts.
+"""RAGToolset example: override model priors with retrieved facts.
 
 The agent is told (via the RAG index) that "the sky is green" and then asked
 what colour the sky is. A working RAG flow forces the answer to come from
@@ -13,7 +13,7 @@ the LLM is local Ollama qwen3:latest.
 Prereqs:
 - ollama running locally
 - `ollama pull qwen3:latest`
-- `pip install "pydantic-ai-toolkits[rag]"`
+- `pip install "pydantic-ai-toolbox[rag]"`
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ from typing import Any
 
 from pydantic_ai import Agent
 
-from pydantic_ai_toolkits import RAGToolkit
+from pydantic_ai_toolbox import RAGToolset
 
 LOGGING: dict[str, Any] = {
     "format": "%(asctime)s.%(msecs)03d [%(levelname)s]: (%(name)s) %(message)s",
@@ -55,7 +55,7 @@ def stub_embedder(texts: list[str]) -> list[list[float]]:
     return out
 
 
-def build_agent(rag: RAGToolkit) -> Agent:
+def main() -> None:
     from pydantic_ai.models.openai import OpenAIChatModel
     from pydantic_ai.providers.openai import OpenAIProvider
 
@@ -64,7 +64,12 @@ def build_agent(rag: RAGToolkit) -> Agent:
         OLLAMA_MODEL,
         provider=OpenAIProvider(base_url=OLLAMA_BASE_URL, api_key="ollama"),
     )
-    return Agent(
+
+    rag = RAGToolset(embedder=stub_embedder, chunk_size=200, chunk_overlap=20)
+    rag.add_text("The sky is green.", doc_id="d-sky")
+    logger.info(f"Indexed: {rag.count()} chunk(s)")
+
+    agent = Agent(
         model=model,
         toolsets=[rag],
         system_prompt=(
@@ -75,15 +80,9 @@ def build_agent(rag: RAGToolkit) -> Agent:
         ),
     )
 
-
-def main() -> None:
-    rag = RAGToolkit(embedder=stub_embedder, chunk_size=200, chunk_overlap=20)
-    rag.add_text("The sky is green.", doc_id="d-sky")
-    logger.info(f"Indexed: {rag.count()} chunk(s)")
-
-    agent = build_agent(rag)
     reply = agent.run_sync("What color is the sky?")
     logger.info(f"Agent reply: {reply.output}")
+    logger.info(f"Final python-side rag.count(): {rag.count()}")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Tests for RAGToolkit."""
+"""Tests for RAGToolset."""
 
 from __future__ import annotations
 
@@ -9,11 +9,11 @@ from pathlib import Path
 
 import pytest
 
-pytest.importorskip("numpy")  # RAGToolkit requires numpy; skip the file cleanly if absent.
+pytest.importorskip("numpy")  # RAGToolset requires numpy; skip the file cleanly if absent.
 
-from pydantic_ai_toolkits.toolkits.rag import (  # noqa: E402
+from pydantic_ai_toolbox.toolsets.rag import (  # noqa: E402
     DEFAULT_MAX_FILE_BYTES,
-    RAGToolkit,
+    RAGToolset,
     split_text_recursively,
 )
 
@@ -37,8 +37,8 @@ def make_tk(
     tmp_path: Path | None = None,
     embedder=deterministic_embedder,
     **overrides,
-) -> RAGToolkit:
-    """Construct a RAGToolkit with sane defaults for tests."""
+) -> RAGToolset:
+    """Construct a RAGToolset with sane defaults for tests."""
     params: dict = {
         "embedder": embedder,
         "chunk_size": 50,
@@ -49,56 +49,56 @@ def make_tk(
     if tmp_path is not None:
         params["storage_path"] = tmp_path / "rag"
     params.update(overrides)
-    return RAGToolkit(**params)
+    return RAGToolset(**params)
 
 
 class TestConstructorValidation:
-    """RAGToolkit constructor argument validation."""
+    """RAGToolset constructor argument validation."""
 
     def test_defaults(self) -> None:
-        tk = RAGToolkit(embedder=deterministic_embedder)
+        tk = RAGToolset(embedder=deterministic_embedder)
         assert tk.chunk_size > 0
         assert tk.namespace == "default"
         assert tk.storage_path is None
 
     def test_chunk_overlap_strictly_less_than_chunk_size(self) -> None:
-        RAGToolkit(embedder=deterministic_embedder, chunk_size=100, chunk_overlap=99)
+        RAGToolset(embedder=deterministic_embedder, chunk_size=100, chunk_overlap=99)
         with pytest.raises(ValueError, match="strictly less"):
-            RAGToolkit(embedder=deterministic_embedder, chunk_size=100, chunk_overlap=100)
+            RAGToolset(embedder=deterministic_embedder, chunk_size=100, chunk_overlap=100)
         with pytest.raises(ValueError, match="strictly less"):
-            RAGToolkit(embedder=deterministic_embedder, chunk_size=100, chunk_overlap=200)
+            RAGToolset(embedder=deterministic_embedder, chunk_size=100, chunk_overlap=200)
 
     def test_chunk_size_positive(self) -> None:
         with pytest.raises(ValueError, match="chunk_size"):
-            RAGToolkit(embedder=deterministic_embedder, chunk_size=0)
+            RAGToolset(embedder=deterministic_embedder, chunk_size=0)
         with pytest.raises(ValueError, match="chunk_size"):
-            RAGToolkit(embedder=deterministic_embedder, chunk_size=-1)
+            RAGToolset(embedder=deterministic_embedder, chunk_size=-1)
 
     def test_chunk_overlap_non_negative(self) -> None:
         with pytest.raises(ValueError, match="chunk_overlap"):
-            RAGToolkit(embedder=deterministic_embedder, chunk_overlap=-1)
+            RAGToolset(embedder=deterministic_embedder, chunk_overlap=-1)
 
     def test_max_results_positive(self) -> None:
         with pytest.raises(ValueError, match="max_results"):
-            RAGToolkit(embedder=deterministic_embedder, max_results=0)
+            RAGToolset(embedder=deterministic_embedder, max_results=0)
 
     def test_distance_must_be_cosine(self) -> None:
         with pytest.raises(ValueError, match="cosine"):
-            RAGToolkit(embedder=deterministic_embedder, distance="euclidean")  # type: ignore[arg-type]
+            RAGToolset(embedder=deterministic_embedder, distance="euclidean")  # type: ignore[arg-type]
 
     def test_embedder_must_be_callable(self) -> None:
         with pytest.raises((TypeError, ValueError)):
-            RAGToolkit(embedder="not-callable")  # type: ignore[arg-type]
+            RAGToolset(embedder="not-callable")  # type: ignore[arg-type]
 
     def test_namespace_regex(self) -> None:
-        RAGToolkit(embedder=deterministic_embedder, namespace="a.B_1-2")
+        RAGToolset(embedder=deterministic_embedder, namespace="a.B_1-2")
         for bad in ("", "has space", "x" * 65, "ключ"):
             with pytest.raises(ValueError, match="namespace"):
-                RAGToolkit(embedder=deterministic_embedder, namespace=bad)
+                RAGToolset(embedder=deterministic_embedder, namespace=bad)
 
     def test_storage_parent_must_exist(self, tmp_path: Path) -> None:
         with pytest.raises(FileNotFoundError):
-            RAGToolkit(
+            RAGToolset(
                 embedder=deterministic_embedder,
                 storage_path=tmp_path / "missing" / "rag",
             )
@@ -144,9 +144,9 @@ class TestAddFile:
         path = tmp_path / "big.txt"
         path.write_text("x", encoding="utf-8")
         # Patch the size limit to be tiny so we don't have to materialise 10 MB.
-        monkeypatch.setattr("pydantic_ai_toolkits.toolkits.rag.DEFAULT_MAX_FILE_BYTES", 0)
+        monkeypatch.setattr("pydantic_ai_toolbox.toolsets.rag.DEFAULT_MAX_FILE_BYTES", 0)
         # Re-import-bound reference inside the module:
-        import pydantic_ai_toolkits.toolkits.rag as rag_mod
+        import pydantic_ai_toolbox.toolsets.rag as rag_mod
 
         assert rag_mod.DEFAULT_MAX_FILE_BYTES == 0
         tk = make_tk(tmp_path)
@@ -286,8 +286,8 @@ class TestPersistence:
         original_doc_index = {k: list(v) for k, v in tk.index.doc_index.items()}
 
         tk.save()
-        # Fresh toolkit, same path, then load.
-        tk2 = RAGToolkit(
+        # Fresh toolset, same path, then load.
+        tk2 = RAGToolset(
             embedder=deterministic_embedder,
             chunk_size=50,
             chunk_overlap=5,

@@ -1,12 +1,16 @@
-# FilesystemToolkit
+# FilesystemToolset
+
+[README](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/README.md)
 
 Sandboxed file ops rooted at a single directory. No third-party
 dependency beyond the standard library.
 
-```python
-from pydantic_ai_toolkits import FilesystemToolkit
+[Filesystem](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/examples/filesystem_example.py) — Example Create / Read / Append / Delete files
 
-fs = FilesystemToolkit(
+```python
+from pydantic_ai_toolbox import FilesystemToolset
+
+fs = FilesystemToolset(
     root="./workspace",
     read_only=False,
     max_bytes=1_000_000,
@@ -41,10 +45,10 @@ import tempfile
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.openai import OpenAIProvider
-from pydantic_ai_toolkits import FilesystemToolkit
+from pydantic_ai_toolbox import FilesystemToolset
 
 with tempfile.TemporaryDirectory() as tmp:
-    fs = FilesystemToolkit(root=tmp, read_only=False)
+    fs = FilesystemToolset(root=tmp, read_only=False)
 
     agent = Agent(
         model=OpenAIChatModel(
@@ -77,11 +81,11 @@ tool call.
 
 ## Direct (no-agent) flow
 
-If you just want the toolkit's contract verified, the same flow without an
+If you just want the toolset's contract verified, the same flow without an
 LLM is in `tests/test_example_flows.py::TestFilesystemFlow`:
 
 ```python
-fs = FilesystemToolkit(root=tmp_path, read_only=False)
+fs = FilesystemToolset(root=tmp_path, read_only=False)
 fs.write_file("notes.txt", "hello")
 assert "notes.txt" in fs.list_dir(".")
 fs.append_file("notes.txt", "\nsecond line\n")

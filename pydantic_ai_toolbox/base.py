@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Base class and decorator for class-based pydantic-ai toolkits."""
+"""Base class and decorator for class-based pydantic-ai toolsets."""
 
 from __future__ import annotations
 
@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 
 F = TypeVar("F", bound=Callable[..., Any])
 
-TOOL_MARKER_ATTR = "__toolkit_tool__"
-TOOL_NAME_ATTR = "__toolkit_tool_name__"
-TOOL_DESC_ATTR = "__toolkit_tool_description__"
-TOOL_TAKES_CTX_ATTR = "__toolkit_tool_takes_ctx__"
+TOOL_MARKER_ATTR = "__toolset_tool__"
+TOOL_NAME_ATTR = "__toolset_tool_name__"
+TOOL_DESC_ATTR = "__toolset_tool_description__"
+TOOL_TAKES_CTX_ATTR = "__toolset_tool_takes_ctx__"
 
 
 @overload
@@ -36,9 +36,9 @@ def tool(
     description: str | None = None,
     takes_ctx: bool = False,
 ) -> Callable[[F], F] | F:
-    """Mark a method as a toolkit tool.
+    """Mark a method as a toolset tool.
 
-    The marker is consumed by `BaseToolkit.__init__`, which registers the bound
+    The marker is consumed by `BaseToolset.__init__`, which registers the bound
     method with the underlying `FunctionToolset`. Tool name defaults to the
     method name; description defaults to the method docstring.
 
@@ -58,13 +58,13 @@ def tool(
     return decorator(fn)
 
 
-class BaseToolkit(FunctionToolset):
-    """Class-based toolkit. Subclass and decorate methods with `@tool`.
+class BaseToolset(FunctionToolset):
+    """Class-based toolset. Subclass and decorate methods with `@tool`.
 
     Subclasses configure themselves in `__init__` (paths, connections, limits)
     and then call `super().__init__()`, which scans `type(self)` for methods
     flagged by `@tool` and registers them as functions on the underlying
-    `FunctionToolset`. The bound methods carry the toolkit's configuration
+    `FunctionToolset`. The bound methods carry the toolset's configuration
     through `self`, so per-call arguments stay minimal.
     """
 

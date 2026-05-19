@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""SQLAlchemy-backed SQL toolkit for pydantic-ai agents."""
+"""SQLAlchemy-backed SQL toolset for pydantic-ai agents."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ import logging
 import re
 from typing import Any
 
-from ..base import BaseToolkit, tool
+from ..base import BaseToolset, tool
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +34,10 @@ def is_select_only(sql: str) -> bool:
     return head in {"select", "with", "show", "explain", "describe", "desc", "pragma"}
 
 
-class SQLToolkit(BaseToolkit):
+class SQLToolset(BaseToolset):
     """Run schema introspection and parameterised queries against a SQLAlchemy URL.
 
-    By default the toolkit is read-only: only SELECT/WITH/SHOW/EXPLAIN/PRAGMA
+    By default the toolset is read-only: only SELECT/WITH/SHOW/EXPLAIN/PRAGMA
     statements pass the guard. Set `read_only=False` to enable `execute`
     against mutating statements.
     """
@@ -53,7 +53,7 @@ class SQLToolkit(BaseToolkit):
             from sqlalchemy import create_engine
         except ImportError as exc:
             raise ImportError(
-                "SQLToolkit requires sqlalchemy. Install via `pip install pydantic-ai-toolkits[sql]`."
+                "SQLToolset requires sqlalchemy. Install via `pip install pydantic-ai-toolbox[sql]`."
             ) from exc
 
         self.engine = create_engine(dsn, **(engine_kwargs or {}))
@@ -61,7 +61,7 @@ class SQLToolkit(BaseToolkit):
         self.max_rows = max_rows
         super().__init__()
         logger.info(
-            f"SQLToolkit ready: dsn={self.engine.url.render_as_string(hide_password=True)} read_only={self.read_only}"
+            f"SQLToolset ready: dsn={self.engine.url.render_as_string(hide_password=True)} read_only={self.read_only}"
         )
 
     @tool
@@ -103,7 +103,7 @@ class SQLToolkit(BaseToolkit):
         """Run a read-only SQL statement and return rows as a list of dicts.
 
         `params` binds named parameters (`:name`). Rows are capped at
-        `min(limit, max_rows)`; the cap defaults to the toolkit `max_rows`.
+        `min(limit, max_rows)`; the cap defaults to the toolset `max_rows`.
         """
         from sqlalchemy import text
 
@@ -117,14 +117,14 @@ class SQLToolkit(BaseToolkit):
 
     @tool
     def execute(self, sql: str, params: dict | None = None) -> dict:
-        """Run a mutating SQL statement. Disabled when the toolkit is read-only.
+        """Run a mutating SQL statement. Disabled when the toolset is read-only.
 
         Returns the affected `rowcount` (driver-dependent; may be -1 for some statements).
         """
         from sqlalchemy import text
 
         if self.read_only:
-            raise PermissionError("SQLToolkit is configured as read-only")
+            raise PermissionError("SQLToolset is configured as read-only")
         with self.engine.begin() as conn:
             result = conn.execute(text(sql), params or {})
             return {"rowcount": result.rowcount}

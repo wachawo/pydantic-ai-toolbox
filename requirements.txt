@@ -1,4 +1,4 @@
-# Runtime dependencies for pydantic-ai-toolkits with all extras.
+# Runtime dependencies for pydantic-ai-toolbox with all extras.
 # This mirrors pyproject.toml's [project.dependencies] + [project.optional-dependencies.all].
 # `pip install -e .[all]` is the preferred path; this file is provided for
 # environments that pin from a flat requirements list.
@@ -11,9 +11,9 @@ sqlalchemy>=2.0
 
 # extra: pandas
 pandas>=2.0
-pyarrow>=15.0          # parquet I/O via PandasToolkit.load_parquet
+pyarrow>=15.0          # parquet I/O via PandasToolset.load_parquet
 
 # extra: rag
 numpy>=1.26
 
-# MemoryToolkit is stdlib only; no entry required.
+# MemoryToolset is stdlib only; no entry required.

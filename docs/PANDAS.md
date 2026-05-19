@@ -1,14 +1,18 @@
-# PandasToolkit
+# PandasToolset
+
+[README](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/README.md)
 
 In-memory dataframe registry plus common analysis ops. Requires the
 `[pandas]` extra (which pulls in `pandas` and `pyarrow` so both CSV
 and Parquet loaders work out of the box).
 
+[Pandas](https://github.com/wachawo/pydantic-ai-toolkits/blob/main/examples/pandas_example.py) — Example load a CSV, count rows by condition
+
 ```python
 import pandas as pd
-from pydantic_ai_toolkits import PandasToolkit
+from pydantic_ai_toolbox import PandasToolset
 
-pd_kit = PandasToolkit(
+pd_kit = PandasToolset(
     dataframes={"orders": pd.read_csv("orders.csv")},
     max_preview_rows=100,
     max_query_rows=1_000,
@@ -58,7 +62,7 @@ from pathlib import Path
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.openai import OpenAIProvider
-from pydantic_ai_toolkits import PandasToolkit
+from pydantic_ai_toolbox import PandasToolset
 
 CSV = (
     "country,price,qty\n"
@@ -69,7 +73,7 @@ with tempfile.TemporaryDirectory() as tmp:
     csv_path = Path(tmp) / "sales.csv"
     csv_path.write_text(CSV, encoding="utf-8")
 
-    pd_kit = PandasToolkit()
+    pd_kit = PandasToolset()
     agent = Agent(
         model=OpenAIChatModel(
             "qwen3:8b",
@@ -98,7 +102,7 @@ The same load + filter without an LLM
 (`tests/test_example_flows.py::TestPandasFlow`):
 
 ```python
-pd_kit = PandasToolkit()
+pd_kit = PandasToolset()
 pd_kit.load_csv("sales", str(csv_path))
 rows = pd_kit.query("sales", "price > 20", limit=1000)
 assert len(rows) == 4

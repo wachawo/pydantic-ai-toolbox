@@ -24,26 +24,26 @@ sync:
 	uv sync --all-extras --all-groups
 
 format:
-	black pydantic_ai_toolkits tests examples
-	ruff check --fix pydantic_ai_toolkits tests examples
+	black pydantic_ai_toolbox tests examples
+	ruff check --fix pydantic_ai_toolbox tests examples
 
 lint:
-	ruff check pydantic_ai_toolkits tests examples
-	black --check pydantic_ai_toolkits tests examples
+	ruff check pydantic_ai_toolbox tests examples
+	black --check pydantic_ai_toolbox tests examples
 
 typecheck: mypy
 
 mypy:
-	mypy pydantic_ai_toolkits
+	mypy pydantic_ai_toolbox
 
 pyright:
-	pyright pydantic_ai_toolkits tests
+	pyright pydantic_ai_toolbox tests
 
 test:
 	pytest
 
 test-cov:
-	pytest --cov=pydantic_ai_toolkits --cov-report=term-missing --cov-report=html
+	pytest --cov=pydantic_ai_toolbox --cov-report=term-missing --cov-report=html
 
 docs:
 	mkdocs build --strict

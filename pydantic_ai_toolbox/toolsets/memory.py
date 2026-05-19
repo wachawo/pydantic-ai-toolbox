@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Conversation and scratchpad memory toolkit for pydantic-ai agents."""
+"""Conversation and scratchpad memory toolset for pydantic-ai agents."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-from ..base import BaseToolkit, tool
+from ..base import BaseToolset, tool
 
 logger = logging.getLogger(__name__)
 
@@ -99,7 +99,7 @@ class MemoryStore:
         with self.lock:
             payload = self.snapshot()
         atomic_write_json(self.storage_path, payload)
-        logger.debug(f"MemoryToolkit snapshot persisted to {self.storage_path}")
+        logger.debug(f"MemoryToolset snapshot persisted to {self.storage_path}")
 
     def load_from_file(self, path: Path) -> None:
         try:
@@ -154,7 +154,7 @@ def message_to_dict(m: ChatMessage) -> dict[str, Any]:
     return {"id": m.id, "role": m.role, "content": m.content, "ts": float(m.ts)}
 
 
-class MemoryToolkit(BaseToolkit):
+class MemoryToolset(BaseToolset):
     """Conversation buffer + key/value scratchpad memory.
 
     Messages are appended in order and evicted oldest-first when either the
@@ -199,7 +199,7 @@ class MemoryToolkit(BaseToolkit):
         self.store = MemoryStore(path)
         super().__init__()
         logger.info(
-            f"MemoryToolkit ready: namespace={namespace} "
+            f"MemoryToolset ready: namespace={namespace} "
             f"max_messages={max_messages} max_chars={max_chars} "
             f"storage_path={path}"
         )

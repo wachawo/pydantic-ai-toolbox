@@ -18,8 +18,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install "ruff>=0.5" "black>=24.8"
-      - run: ruff check pydantic_ai_toolkits tests examples
-      - run: black --check pydantic_ai_toolkits tests examples
+      - run: ruff check pydantic_ai_toolbox tests examples
+      - run: black --check pydantic_ai_toolbox tests examples
 
   typecheck:
     runs-on: ubuntu-latest
@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e ".[all]" "mypy>=1.10"
-      - run: mypy pydantic_ai_toolkits
+      - run: mypy pydantic_ai_toolbox
 
   test:
     runs-on: ubuntu-latest

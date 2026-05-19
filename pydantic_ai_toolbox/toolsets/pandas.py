@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Pandas dataframe toolkit for pydantic-ai agents."""
+"""Pandas dataframe toolset for pydantic-ai agents."""
 
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-from ..base import BaseToolkit, tool
+from ..base import BaseToolset, tool
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ DEFAULT_MAX_QUERY_ROWS = 1_000
 SUPPORTED_AGG = {"count", "sum", "mean", "median", "min", "max", "std", "var", "nunique"}
 
 
-class PandasToolkit(BaseToolkit):
+class PandasToolset(BaseToolset):
     """Manage a named in-memory dataframe registry and expose common analysis ops.
 
     Dataframes are addressed by string name. Loaders register a frame under a
@@ -35,7 +35,7 @@ class PandasToolkit(BaseToolkit):
             import pandas as pd
         except ImportError as exc:
             raise ImportError(
-                "PandasToolkit requires pandas. Install via `pip install pydantic-ai-toolkits[pandas]`."
+                "PandasToolset requires pandas. Install via `pip install pydantic-ai-toolbox[pandas]`."
             ) from exc
 
         self.pd = pd
@@ -43,7 +43,7 @@ class PandasToolkit(BaseToolkit):
         self.max_preview_rows = max_preview_rows
         self.max_query_rows = max_query_rows
         super().__init__()
-        logger.info(f"PandasToolkit ready: dataframes={list(self.dfs)}")
+        logger.info(f"PandasToolset ready: dataframes={list(self.dfs)}")
 
     def get_df(self, name: str) -> Any:
         if name not in self.dfs:
