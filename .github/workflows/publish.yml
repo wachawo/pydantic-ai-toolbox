@@ -4,6 +4,12 @@ on:
     tags:
       - "*.*.*"
       - "v*"
+  workflow_dispatch:
+    inputs:
+      build:
+        description: "Wheel build tag (workaround for PyPI file-name reuse; publishes wheel only)"
+        required: false
+        default: ""
 permissions:
   contents: read
   id-token: write
@@ -17,6 +23,12 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install -U build
       - run: python -m build
+      - name: Retag wheel with build number
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.build != ''
+        run: |
+          python -m pip install -U wheel
+          wheel tags --build "${{ github.event.inputs.build }}" --remove dist/*.whl
+          rm -f dist/*.tar.gz
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
